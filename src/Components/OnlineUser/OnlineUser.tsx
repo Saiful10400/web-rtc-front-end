@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from "react";
 import { ContextProvider } from "../../Context_Api/useContextFn";
 import ReactPlayer from "react-player";
 import { useSearchParams } from "react-router";
- 
 
 // Type for user
 type Tuser = { name: string; email: string; id: string };
@@ -15,7 +14,6 @@ const OnlineUser = () => {
   const [activeUser, setActiveUser] = useState<Tuser[]>([]);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
- 
 
   // 🧠 Get user media stream
   useEffect(() => {
@@ -124,9 +122,7 @@ const OnlineUser = () => {
 
   // 📞 Receive answer and complete handshake
   useEffect(() => {
-    const handleAnswer = async (e: {
-      ans: RTCSessionDescriptionInit;
-    }) => {
+    const handleAnswer = async (e: { ans: RTCSessionDescriptionInit }) => {
       const pc = data?.peerConnection;
       if (!pc) return;
       await pc.setRemoteDescription(new RTCSessionDescription(e.ans));
@@ -138,48 +134,82 @@ const OnlineUser = () => {
     };
   }, [data]);
 
- 
-
- 
+  // 📴 End Call and Redirect
+  const handleEndCall = () => {
+    // Stop media tracks
+    localStream?.getTracks().forEach((track) => track.stop());
+    // Optional: Close connection or socket here
+    window.location.href = "/";
+  };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 items-start relative">
-    
+    <div className="relative w-full h-screen bg-black overflow-hidden">
+      {/* Remote Video Fullscreen */}
+      {remoteStream && (
+        <ReactPlayer
+          url={remoteStream}
+          playing
+          controls={false}
+          muted={false}
+          width="100%"
+          height="100%"
+          className="absolute top-0 left-0 z-0 object-cover"
+        />
+      )}
 
-      {/* Video Streams */}
-      <div className="lg:w-1/2 border flex flex-col gap-2 justify-center items-center">
-        {localStream && (
-          <ReactPlayer url={localStream} playing muted height={300} width={400} />
-        )}
-        {remoteStream && (
-          <ReactPlayer url={remoteStream} playing height={300} width={400} />
-        )}
-      </div>
+      {/* Local Video Small Floating */}
+      {localStream && (
+        <div className="absolute top-4 right-4 w-40 h-24 sm:w-48 sm:h-28 md:w-64 md:h-40 z-10 rounded-lg overflow-hidden border-2 border-white shadow-xl">
+          <ReactPlayer
+            url={localStream}
+            playing
+            muted
+            width="100%"
+            height="100%"
+            className="object-cover"
+          />
+        </div>
+      )}
 
-      {/* User List */}
-      <div className="lg:w-1/2 flex flex-col gap-2">
-        {activeUser.map((user) => (
-          <div
-            key={user.id}
-            className="flex py-1 w-max items-start gap-2 border rounded-md px-2"
-          >
-            <div>
-              <h1 className="font-semibold">
-                {user.name} {user.email === myEmail && "(You)"}
-              </h1>
-              <h2 className="font-thin text-xs">{user.email}</h2>
-            </div>
-            {user.email !== myEmail && (
-              <button
-                onClick={() => makeACallHandle(user.email)}
-                className="bg-gray-500 px-2 py-1 rounded-md"
+      {/* End Call Button */}
+      {remoteStream && (
+        <button
+          onClick={handleEndCall}
+          className="absolute bottom-4 right-4 z-20 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-lg"
+        >
+          End Call
+        </button>
+      )}
+
+      {/* Stylish Online User List (only show if not in call) */}
+      {!remoteStream && (
+        <div className="absolute bottom-4 left-4 z-20 bg-white/80 backdrop-blur-sm p-5 rounded-xl max-w-sm shadow-2xl">
+          <h2 className="font-bold text-lg mb-4 text-gray-800">Online Users</h2>
+          <div className="flex flex-col gap-3">
+            {activeUser.map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center justify-between border border-gray-200 p-3 rounded-md bg-white hover:shadow-md transition-shadow"
               >
-                Call
-              </button>
-            )}
+                <div>
+                  <p className="font-semibold text-gray-800">
+                    {user.name} {user.email === myEmail && "(You)"}
+                  </p>
+                  <p className="text-xs text-gray-500">{user.email}</p>
+                </div>
+                {user.email !== myEmail && (
+                  <button
+                    onClick={() => makeACallHandle(user.email)}
+                    className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-3 py-1 rounded-md hover:opacity-90 text-sm shadow-sm"
+                  >
+                    Call
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

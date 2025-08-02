@@ -50,27 +50,38 @@ const Home: React.FC = () => {
   }, [data?.socket, navigate]);
 
   return (
-    <div className="w-full min-h-screen flex justify-center items-center">
-      <form onSubmit={userJoinHandle} className="min-w-[300px] flex flex-col items-center gap-2">
+    <div className="min-h-screen w-full bg-gray-900 flex justify-center items-center px-4">
+      <form
+        onSubmit={userJoinHandle}
+        className="w-full max-w-md bg-gray-800 rounded-xl shadow-xl p-8 flex flex-col gap-5"
+      >
+        <h1 className="text-2xl font-bold text-center text-gray-100">Join Video Chat</h1>
+
         <input
           name="name"
           required
           type="text"
           placeholder="Your name"
-          className="rounded-sm border border-white w-full py-1 pl-1 focus:outline-none text-black font-semibold"
+          className="w-full px-4 py-2 rounded-md border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
         />
+
         <input
           name="email"
           required
           type="email"
           placeholder="Your email"
-          className="rounded-sm border border-white w-full py-1 pl-1 focus:outline-none text-black font-semibold"
+          className="w-full px-4 py-2 rounded-md border border-gray-600 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
         />
-        <button type="submit" className="bg-white text-black w-max font-semibold px-2 py-1 rounded-sm text-lg">
+
+        <button
+          type="submit"
+          className="w-full bg-gray-600 hover:bg-gray-700 text-gray-100 font-semibold py-2 rounded-md transition-colors"
+        >
           Join
         </button>
       </form>
     </div>
+
   );
 };
 
