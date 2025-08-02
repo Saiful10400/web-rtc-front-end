@@ -1,44 +1,72 @@
 import React, { useContext, useEffect } from "react";
-import { ContextProvider } from "../../Context_Api/useContextFn";
 import { useNavigate } from "react-router";
+import { ContextProvider } from "../../Context_Api/useContextFn";
 
-const Home = () => {
-const data=useContext(ContextProvider)
+// Define the shape of your context value (adjust as needed)
+type ContextType = {
+  socket: {
+    emit: (event: string, data: string | { [key: string]: string }) => void;
+    on: (event: string, callback: (res: {
+      success: boolean;
+      email: string;
+    }) => void) => void;
+    off: (event: string) => void;
+  };
+};
 
-  const userJoinHandle=(e:React.FormEvent)=>{
-    e.preventDefault()
-    const form=e.target
-    data?.socket.emit("join_user",{name:form.name.value,email:form.email.value})
-  }
-const move=useNavigate()
-useEffect(()=>{
-  data?.socket.on("success_join",(data)=>{
-    if(data?.success){
-      move(`/online-user?email=${data.email}`)
+const Home: React.FC = () => {
+  const data = useContext(ContextProvider) as ContextType | null;
+  const navigate = useNavigate();
+
+  const userJoinHandle = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const nameInput = form.elements.namedItem("name") as HTMLInputElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+
+    const name = nameInput?.value?.trim();
+    const email = emailInput?.value?.trim();
+
+    if (name && email && data?.socket) {
+      data.socket.emit("join_user", { name, email });
     }
-  })
-  return ()=>{
-    data?.socket.off("success_join")
-  }
-},[data,move])
+  };
+
+  useEffect(() => {
+    if (!data?.socket) return;
+
+    const handleJoinSuccess = (res: { success: boolean; email: string }) => {
+      if (res?.success) {
+        navigate(`/online-user?email=${res.email}`);
+      }
+    };
+
+    data.socket.on("success_join", handleJoinSuccess);
 
 
+    return () => {
+      data.socket.off("success_join");
+    };
+  }, [data?.socket, navigate]);
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center">
       <form onSubmit={userJoinHandle} className="min-w-[300px] flex flex-col items-center gap-2">
         <input
-        name="name" required
+          name="name"
+          required
           type="text"
           placeholder="Your name"
           className="rounded-sm border border-white w-full py-1 pl-1 focus:outline-none text-black font-semibold"
         />
-        <input name="email" required
-          type="text"
+        <input
+          name="email"
+          required
+          type="email"
           placeholder="Your email"
           className="rounded-sm border border-white w-full py-1 pl-1 focus:outline-none text-black font-semibold"
         />
-        <button className="bg-white text-black w-max font-semibold px-2 py-1 rounded-sm text-lg">
+        <button type="submit" className="bg-white text-black w-max font-semibold px-2 py-1 rounded-sm text-lg">
           Join
         </button>
       </form>
