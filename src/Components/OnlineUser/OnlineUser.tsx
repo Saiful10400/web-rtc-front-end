@@ -175,7 +175,7 @@ const OnlineUser = () => {
       {remoteStream && (
         <button
           onClick={handleEndCall}
-          className="absolute bottom-4 right-4 z-20 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-lg"
+          className="absolute bottom-0 right-4 z-20 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-lg"
         >
           End Call
         </button>
@@ -183,7 +183,7 @@ const OnlineUser = () => {
 
       {/* Stylish Online User List (only show if not in call) */}
       {!remoteStream && (
-        <div className="absolute bottom-4 left-4 z-20 bg-white/80 backdrop-blur-sm p-5 rounded-xl max-w-sm shadow-2xl">
+        <div className="absolute bottom-0 left-4 z-20 bg-white/80 backdrop-blur-sm p-5 rounded-xl max-w-sm shadow-2xl">
           <h2 className="font-bold text-lg mb-4 text-gray-800">Online Users</h2>
           <div className="flex flex-col gap-3">
             {activeUser.map((user) => (
